@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Rx - Pharmacy Management System</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- ChartJS & Lucide Icons via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+  
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ==========================================
+       1. LOGIN SECTION (OVERLAY)
+       ========================================== -->
+  <div id="login-section" class="login-section">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="logo-container">
+          <i data-lucide="shield-plus" class="logo-icon text-glow"></i>
+        </div>
+        <h1>Aegis Rx</h1>
+        <p>Pharmacy Management Suite</p>
+      </div>
+      <form id="login-form" class="login-form">
+        <div class="input-group">
+          <label for="login-username"><i data-lucide="user"></i> Username</label>
+          <input type="text" id="login-username" placeholder="Enter username (e.g. admin)" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="login-password"><i data-lucide="lock"></i> Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          <span>Login Securely</span>
+          <i data-lucide="key-round"></i>
+        </button>
+      </form>
+      <div class="login-footer">
+        <p>Demo accounts: <strong>admin</strong> (pwd: <em>admin123</em>) or <strong>staff</strong> (pwd: <em>staff123</em>)</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       2. MAIN WORKSPACE SECTION
+       ========================================== -->
+  <div id="app-workspace" class="app-workspace hidden">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i data-lucide="shield-plus" class="logo-icon-sm"></i>
+        <h2>Aegis Rx</h2>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-link active" data-panel="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#medicines" class="nav-link" data-panel="medicines">
+          <i data-lucide="pill"></i>
+          <span>Medicines</span>
+        </a>
+        <a href="#pos" class="nav-link" data-panel="pos">
+          <i data-lucide="shopping-cart"></i>
+          <span>Sales & Billing</span>
+        </a>
+        <a href="#purchases" class="nav-link" data-panel="purchases">
+          <i data-lucide="package-plus"></i>
+          <span>Purchases</span>
+        </a>
+        <a href="#suppliers" class="nav-link" data-panel="suppliers">
+          <i data-lucide="truck"></i>
+          <span>Suppliers</span>
+        </a>
+        <a href="#customers" class="nav-link" data-panel="customers">
+          <i data-lucide="users"></i>
+          <span>Customers</span>
+        </a>
+        <a href="#reports" class="nav-link" data-panel="reports">
+          <i data-lucide="trending-up"></i>
+          <span>Reports</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div class="user-avatar" id="sidebar-user-avatar">A</div>
+          <div class="user-details">
+            <span class="user-name" id="sidebar-username">Admin</span>
+            <span class="user-role" id="sidebar-role">Administrator</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-icon-label logout-btn">
+          <i data-lucide="log-out"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- RIGHT CONTENT PORT -->
+    <main class="content-port">
+      <!-- TOP NAV BAR -->
+      <header class="top-nav">
+        <div class="top-nav-left">
+          <h1 id="panel-title">Dashboard</h1>
+          <span id="db-mode-badge" class="db-mode-badge mock-badge">Demo Mode</span>
+        </div>
+        <div class="top-nav-right">
+          <div class="time-widget">
+            <i data-lucide="calendar"></i>
+            <span id="current-datetime">Sat, July 11, 2026</span>
+          </div>
+          <button id="theme-toggle" class="btn-theme-toggle" title="Toggle Theme">
+            <i data-lucide="sun" class="sun-icon"></i>
+            <i data-lucide="moon" class="moon-icon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- VIEW PANELS -->
+      <div class="panels-container">
+        
+        <!-- 2.1 DASHBOARD PANEL -->
+        <section id="panel-dashboard" class="view-panel active">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card card-glow-green">
+              <div class="stat-icon"><i data-lucide="dollar-sign"></i></div>
+              <div class="stat-info">
+                <h3>Total Sales</h3>
+                <p id="stat-sales">$0.00</p>
+              </div>
+            </div>
+            <div class="stat-card card-glow-blue">
+              <div class="stat-icon"><i data-lucide="receipt"></i></div>
+              <div class="stat-info">
+                <h3>Total Purchases</h3>
+                <p id="stat-purchases">$0.00</p>
+              </div>
+            </div>
+            <div class="stat-card card-glow-indigo">
+              <div class="stat-icon"><i data-lucide="pill"></i></div>
+              <div class="stat-info">
+                <h3>Medicines Count</h3>
+                <p id="stat-medicines">0</p>
+              </div>
+            </div>
+            <div class="stat-card card-glow-red clickable" id="stat-low-stock-card">
+              <div class="stat-icon"><i data-lucide="alert-triangle"></i></div>
+              <div class="stat-info">
+                <h3>Low Stock Items</h3>
+                <p id="stat-low-stock">0</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="dashboard-row grid-2">
+            <div class="glass-card">
+              <div class="card-header">
+                <h2>Sales vs Purchases Trend</h2>
+                <i data-lucide="activity" class="card-header-icon"></i>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-sales-purchases"></canvas>
+              </div>
+            </div>
+            <div class="glass-card">
+              <div class="card-header">
+                <h2>Top Selling Medicines</h2>
+                <i data-lucide="award" class="card-header-icon"></i>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-top-medicines"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tables Row -->
+          <div class="dashboard-row grid-2 mt-4">
+            <div class="glass-card">
+              <div class="card-header">
+                <h2>Low Stock Alerts</h2>
+                <button class="btn btn-sm btn-outline-red" id="view-all-low-stock-btn">Manage</button>
+              </div>
+              <div class="table-scroller">
+                <table class="table" id="dashboard-low-stock-table">
+                  <thead>
+                    <tr>
+                      <th>Medicine</th>
+                      <th>Generic Name</th>
+                      <th>Stock</th>
+                      <th>Min Level</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="4" class="text-center text-muted">Loading low stock data...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="glass-card">
+              <div class="card-header">
+                <h2>Recent Transactions</h2>
+                <i data-lucide="clock" class="card-header-icon"></i>
+              </div>
+              <div class="table-scroller">
+                <table class="table" id="dashboard-activity-table">
+                  <thead>
+                    <tr>
+                      <th>Reference</th>
+                      <th>Type</th>
+                      <th>Entity</th>
+                      <th>Amount</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="5" class="text-center text-muted">Loading transactions...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.2 MEDICINES INVENTORY PANEL -->
+        <section id="panel-medicines" class="view-panel">
+          <div class="panel-actions-bar">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="medicines-search" placeholder="Search medicines by name or category...">
+            </div>
+            <div class="filters">
+              <select id="medicines-filter-category">
+                <option value="">All Categories</option>
+              </select>
+              <select id="medicines-filter-stock">
+                <option value="">All Stock Status</option>
+                <option value="low">Low Stock</option>
+                <option value="out">Out of Stock</option>
+                <option value="expired">Expired</option>
+                <option value="nearexpiry">Near Expiry (60 Days)</option>
+              </select>
+              <button id="add-medicine-btn" class="btn btn-primary">
+                <i data-lucide="plus"></i>
+                <span>Add Medicine</span>
+              </button>
+            </div>
+          </div>
+          <div class="glass-card mt-4 overflow-hidden">
+            <div class="table-scroller">
+              <table class="table" id="medicines-main-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Generic Name</th>
+                    <th>Category</th>
+                    <th>Strength</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Cost Price</th>
+                    <th>Stock</th>
+                    <th>Expiry Date</th>
+                    <th>Supplier</th>
+                    <th class="actions-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="11" class="text-center text-muted">Loading medicines...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.3 POINT OF SALE & BILLING PANEL (POS) -->
+        <section id="panel-pos" class="view-panel">
+          <div class="pos-layout">
+            <!-- Left Side: POS billing tray -->
+            <div class="pos-left">
+              <div class="glass-card select-customer-card">
+                <div class="card-header border-none py-2">
+                  <span class="flex-align"><i data-lucide="user-check"></i> Customer Selection</span>
+                  <button id="add-pos-customer-btn" class="btn btn-sm btn-outline-primary" title="Create Customer"><i data-lucide="user-plus"></i></button>
+                </div>
+                <div class="customer-selection-inputs">
+                  <select id="pos-customer-select">
+                    <option value="1">Walking Customer</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Cart details -->
+              <div class="glass-card pos-cart-card mt-4">
+                <div class="card-header">
+                  <h2>Billing Basket</h2>
+                  <span class="badge badge-pill badge-primary" id="pos-item-count">0 items</span>
+                </div>
+                <div class="table-scroller pos-cart-scroller">
+                  <table class="table pos-cart-table" id="pos-cart-table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th class="qty-col">Quantity</th>
+                        <th>Total</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="pos-cart-body">
+                      <tr class="empty-cart-row">
+                        <td colspan="5" class="text-center py-5 text-muted">
+                          <i data-lucide="shopping-cart" class="empty-cart-icon"></i>
+                          <p>Basket is empty. Search medicines on the right to add.</p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Financial details -->
+                <div class="pos-totals-panel">
+                  <div class="totals-row">
+                    <span>Subtotal</span>
+                    <span id="pos-subtotal">$0.00</span>
+                  </div>
+                  <div class="totals-row">
+                    <span>Discount ($)</span>
+                    <input type="number" id="pos-discount" min="0" value="0" step="0.5">
+                  </div>
+                  <div class="totals-row">
+                    <span>Tax (GST/VAT) ($)</span>
+                    <input type="number" id="pos-tax" min="0" value="0" step="0.5">
+                  </div>
+                  <div class="totals-row total-highlight">
+                    <span>Net Total</span>
+                    <span id="pos-net-total">$0.00</span>
+                  </div>
+                  
+                  <div class="totals-row">
+                    <span>Payment Method</span>
+                    <select id="pos-payment-type">
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                      <option value="UPI">UPI / QR Code</option>
+                    </select>
+                  </div>
+                  
+                  <button id="pos-checkout-btn" class="btn btn-primary btn-block btn-lg mt-3" disabled>
+                    <i data-lucide="badge-check"></i>
+                    <span>Generate Bill & Print</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Medicine Selector -->
+            <div class="pos-right">
+              <div class="glass-card pos-selector-card">
+                <div class="card-header border-none py-2">
+                  <div class="search-box block-width">
+                    <i data-lucide="search"></i>
+                    <input type="text" id="pos-med-search" placeholder="Quick find medicine by name...">
+                  </div>
+                </div>
+                <div class="pos-med-grid" id="pos-med-grid">
+                  <!-- JS builds medicine cards here -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.4 PURCHASES ENTRY & HISTORY PANEL -->
+        <section id="panel-purchases" class="view-panel">
+          <div class="tabs-bar">
+            <button class="tab-btn active" data-tab="purchase-history">Purchase Orders</button>
+            <button class="tab-btn" data-tab="new-purchase-entry">New Purchase Entry</button>
+          </div>
+
+          <!-- Purchase History Tab -->
+          <div id="tab-purchase-history" class="tab-panel active mt-4">
+            <div class="glass-card overflow-hidden">
+              <div class="table-scroller">
+                <table class="table" id="purchases-history-table">
+                  <thead>
+                    <tr>
+                      <th>Purchase No</th>
+                      <th>Supplier Name</th>
+                      <th>Purchase Date</th>
+                      <th>Total Cost</th>
+                      <th>Logged Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="5" class="text-center text-muted">Loading purchases...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- New Purchase Entry Tab -->
+          <div id="tab-new-purchase-entry" class="tab-panel mt-4">
+            <div class="grid-layout grid-1-3">
+              <!-- Left side: Entry Details -->
+              <div class="glass-card p-4">
+                <h2>Purchase Header</h2>
+                <form id="purchase-form" class="mt-3">
+                  <div class="input-group">
+                    <label for="purchase-supplier"><i data-lucide="truck"></i> Supplier</label>
+                    <select id="purchase-supplier" required>
+                      <option value="">Select Supplier</option>
+                    </select>
+                  </div>
+                  <div class="input-group">
+                    <label for="purchase-date"><i data-lucide="calendar"></i> Purchase Date</label>
+                    <input type="date" id="purchase-date" required>
+                  </div>
+                  <div class="purchase-summary-box mt-4">
+                    <h3>Purchase Total</h3>
+                    <p id="purchase-total-display" class="total-big">$0.00</p>
+                  </div>
+                  <button type="submit" id="submit-purchase-btn" class="btn btn-primary btn-block mt-4" disabled>
+                    <i data-lucide="save"></i>
+                    <span>Commit Purchase Order</span>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Right side: Selected items list and search -->
+              <div class="glass-card p-4">
+                <div class="flex-justify border-bottom pb-2 mb-3">
+                  <h2>Purchase Items</h2>
+                  <button id="add-purchase-row-btn" class="btn btn-sm btn-outline-primary">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Add Item</span>
+                  </button>
+                </div>
+                <div class="table-scroller">
+                  <table class="table" id="purchase-items-table">
+                    <thead>
+                      <tr>
+                        <th>Medicine</th>
+                        <th class="qty-col">Qty</th>
+                        <th>Cost Price ($)</th>
+                        <th>Expiry Date</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="purchase-items-body">
+                      <!-- Rows generated dynamically -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.5 SUPPLIERS MANAGEMENT PANEL -->
+        <section id="panel-suppliers" class="view-panel">
+          <div class="panel-actions-bar">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="suppliers-search" placeholder="Search suppliers...">
+            </div>
+            <button id="add-supplier-btn" class="btn btn-primary">
+              <i data-lucide="plus"></i>
+              <span>Add Supplier</span>
+            </button>
+          </div>
+          <div class="glass-card mt-4 overflow-hidden">
+            <div class="table-scroller">
+              <table class="table" id="suppliers-main-table">
+                <thead>
+                  <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact Person</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th class="actions-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="text-center text-muted">Loading suppliers...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.6 CUSTOMERS MANAGEMENT PANEL -->
+        <section id="panel-customers" class="view-panel">
+          <div class="panel-actions-bar">
+            <div class="search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="customers-search" placeholder="Search customers...">
+            </div>
+            <button id="add-customer-btn" class="btn btn-primary">
+              <i data-lucide="plus"></i>
+              <span>Add Customer</span>
+            </button>
+          </div>
+          <div class="glass-card mt-4 overflow-hidden">
+            <div class="table-scroller">
+              <table class="table" id="customers-main-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th class="actions-header">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="5" class="text-center text-muted">Loading customers...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2.7 REPORTS PANEL -->
+        <section id="panel-reports" class="view-panel">
+          <div class="panel-actions-bar">
+            <div class="filters">
+              <div class="input-group-inline">
+                <label>From: </label>
+                <input type="date" id="reports-start-date">
+              </div>
+              <div class="input-group-inline">
+                <label>To: </label>
+                <input type="date" id="reports-end-date">
+              </div>
+              <button id="reports-filter-btn" class="btn btn-primary"><i data-lucide="refresh-cw"></i> Generate</button>
+              <button id="reports-export-btn" class="btn btn-outline-primary"><i data-lucide="download"></i> Export CSV</button>
+              <button id="reports-print-btn" class="btn btn-outline-primary"><i data-lucide="printer"></i> Print Summary</button>
+            </div>
+          </div>
+
+          <div class="stats-grid mt-4">
+            <div class="stat-card card-glow-green">
+              <div class="stat-icon"><i data-lucide="dollar-sign"></i></div>
+              <div class="stat-info">
+                <h3>Period Sales</h3>
+                <p id="report-sales-sum">$0.00</p>
+              </div>
+            </div>
+            <div class="stat-card card-glow-blue">
+              <div class="stat-icon"><i data-lucide="receipt"></i></div>
+              <div class="stat-info">
+                <h3>Period Purchases</h3>
+                <p id="report-purchases-sum">$0.00</p>
+              </div>
+            </div>
+            <div class="stat-card card-glow-indigo">
+              <div class="stat-icon"><i data-lucide="badge-dollar-sign"></i></div>
+              <div class="stat-info">
+                <h3>Estimated Margin</h3>
+                <p id="report-profit-margin">$0.00</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-row grid-1-3 mt-4">
+            <!-- Details list -->
+            <div class="glass-card">
+              <div class="card-header border-bottom">
+                <h2>Top Medicines Sold</h2>
+              </div>
+              <div class="p-3">
+                <ul class="top-list" id="report-top-meds-list">
+                  <li class="text-center text-muted">No records found.</li>
+                </ul>
+              </div>
+            </div>
+            <!-- Large Trend Chart -->
+            <div class="glass-card">
+              <div class="card-header border-bottom">
+                <h2>Financial Operations Performance</h2>
+              </div>
+              <div class="chart-container-large p-3">
+                <canvas id="chart-reports-trend"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==========================================
+       3. MODAL DIALOGS
+       ========================================== -->
+       
+  <!-- 3.1 MEDICINE MODAL (Add / Edit) -->
+  <div id="medicine-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h2 id="medicine-modal-title">Add Medicine</h2>
+        <button class="modal-close-btn" data-close="medicine-modal">&times;</button>
+      </div>
+      <form id="medicine-form">
+        <input type="hidden" id="medicine-id">
+        <div class="modal-grid grid-2">
+          <div class="input-group">
+            <label for="med-name">Medicine Name</label>
+            <input type="text" id="med-name" required placeholder="e.g. Paracetamol">
+          </div>
+          <div class="input-group">
+            <label for="med-generic">Generic Name</label>
+            <input type="text" id="med-generic" required placeholder="e.g. Acetaminophen">
+          </div>
+          <div class="input-group">
+            <label for="med-category">Category</label>
+            <input type="text" id="med-category" placeholder="e.g. Analgesic, Antibiotic" required>
+          </div>
+          <div class="input-group">
+            <label for="med-strength">Strength</label>
+            <input type="text" id="med-strength" placeholder="e.g. 500mg, 10ml" required>
+          </div>
+          <div class="input-group">
+            <label for="med-unit">Unit Type</label>
+            <input type="text" id="med-unit" placeholder="e.g. Tablet, Bottle, Strip" required>
+          </div>
+          <div class="input-group">
+            <label for="med-supplier">Default Supplier</label>
+            <select id="med-supplier">
+              <option value="">Select Supplier</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label for="med-price">Retail Price ($)</label>
+            <input type="number" id="med-price" step="0.01" min="0" required placeholder="0.00">
+          </div>
+          <div class="input-group">
+            <label for="med-cost">Cost Price ($)</label>
+            <input type="number" id="med-cost" step="0.01" min="0" required placeholder="0.00">
+          </div>
+          <div class="input-group">
+            <label for="med-stock">Initial Stock</label>
+            <input type="number" id="med-stock" min="0" value="0">
+          </div>
+          <div class="input-group">
+            <label for="med-min-stock">Min Stock Level</label>
+            <input type="number" id="med-min-stock" min="0" value="10">
+          </div>
+          <div class="input-group grid-span-2">
+            <label for="med-expiry">Expiry Date</label>
+            <input type="date" id="med-expiry" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" data-close="medicine-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3.2 SUPPLIER MODAL -->
+  <div id="supplier-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-card max-w-md">
+      <div class="modal-header">
+        <h2 id="supplier-modal-title">Add Supplier</h2>
+        <button class="modal-close-btn" data-close="supplier-modal">&times;</button>
+      </div>
+      <form id="supplier-form">
+        <input type="hidden" id="supplier-id">
+        <div class="input-group">
+          <label for="sup-name">Supplier Name</label>
+          <input type="text" id="sup-name" required placeholder="e.g. Apex Pharma">
+        </div>
+        <div class="input-group">
+          <label for="sup-contact">Contact Person</label>
+          <input type="text" id="sup-contact" placeholder="e.g. John Doe">
+        </div>
+        <div class="input-group">
+          <label for="sup-phone">Phone Number</label>
+          <input type="text" id="sup-phone" placeholder="e.g. 9876543210">
+        </div>
+        <div class="input-group">
+          <label for="sup-email">Email Address</label>
+          <input type="email" id="sup-email" placeholder="e.g. supplier@pharma.com">
+        </div>
+        <div class="input-group">
+          <label for="sup-address">Office Address</label>
+          <textarea id="sup-address" placeholder="Enter physical address..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" data-close="supplier-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Supplier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3.3 CUSTOMER MODAL -->
+  <div id="customer-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-card max-w-md">
+      <div class="modal-header">
+        <h2 id="customer-modal-title">Add Customer</h2>
+        <button class="modal-close-btn" data-close="customer-modal">&times;</button>
+      </div>
+      <form id="customer-form">
+        <input type="hidden" id="customer-id">
+        <div class="input-group">
+          <label for="cust-name">Customer Name</label>
+          <input type="text" id="cust-name" required placeholder="e.g. Alice Smith">
+        </div>
+        <div class="input-group">
+          <label for="cust-phone">Phone Number</label>
+          <input type="text" id="cust-phone" placeholder="e.g. 9844002211">
+        </div>
+        <div class="input-group">
+          <label for="cust-email">Email Address</label>
+          <input type="email" id="cust-email" placeholder="e.g. customer@gmail.com">
+        </div>
+        <div class="input-group">
+          <label for="cust-address">Home Address</label>
+          <textarea id="cust-address" placeholder="Enter physical address..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-primary" data-close="customer-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3.4 INVOICE RECEIPT VIEWER MODAL -->
+  <div id="invoice-modal" class="modal-overlay hidden">
+    <div class="modal-content glass-card max-w-lg print-receipt-modal">
+      <div class="modal-header hide-print">
+        <h2>Sales Invoice</h2>
+        <div>
+          <button class="btn btn-sm btn-outline-primary mr-2" id="print-invoice-btn"><i data-lucide="printer"></i> Print</button>
+          <button class="modal-close-btn" data-close="invoice-modal">&times;</button>
+        </div>
+      </div>
+      
+      <!-- Print Layout -->
+      <div class="invoice-print-area" id="invoice-print-area">
+        <div class="invoice-print-header">
+          <div class="company-brand">
+            <i data-lucide="shield-plus"></i>
+            <h2>Aegis Rx Pharmacy</h2>
+          </div>
+          <p>123 Healthcare Avenue, Medical District</p>
+          <p>Phone: +1 800-555-0199 | Email: contact@aegisrx.com</p>
+        </div>
+        
+        <hr class="receipt-divider">
+        
+        <div class="invoice-meta-grid">
+          <div>
+            <p><strong>Invoice No:</strong> <span id="inv-meta-no">INV-000000</span></p>
+            <p><strong>Date:</strong> <span id="inv-meta-date">2026-07-11</span></p>
+          </div>
+          <div class="text-right">
+            <p><strong>Customer:</strong> <span id="inv-meta-customer">Walking Customer</span></p>
+            <p><strong>Phone:</strong> <span id="inv-meta-phone">N/A</span></p>
+          </div>
+        </div>
+        
+        <hr class="receipt-divider">
+
+        <table class="receipt-items-table">
+          <thead>
+            <tr>
+              <th>Item Description</th>
+              <th class="text-center">Qty</th>
+              <th class="text-right">Price</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="inv-meta-items">
+            <!-- Dynamically populated rows -->
+          </tbody>
+        </table>
+        
+        <hr class="receipt-divider">
+        
+        <div class="receipt-summary-block">
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <span id="inv-meta-subtotal">$0.00</span>
+          </div>
+          <div class="summary-line">
+            <span>Discount</span>
+            <span id="inv-meta-discount">-$0.00</span>
+          </div>
+          <div class="summary-line">
+            <span>Tax</span>
+            <span id="inv-meta-tax">+$0.00</span>
+          </div>
+          <div class="summary-line total-line">
+            <span>Paid (via <span id="inv-meta-payment">Cash</span>)</span>
+            <span id="inv-meta-net">$0.00</span>
+          </div>
+        </div>
+
+        <hr class="receipt-divider">
+        
+        <div class="invoice-print-footer">
+          <p>Thank you for choosing Aegis Rx!</p>
+          <p>Get well soon.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared JavaScript modules -->
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Pharmacy Management System – Python Flask + MongoDB
 
 ## Dashboard demo values
@@ -38,3 +39,6 @@ Make sure MongoDB is running on `mongodb://localhost:27017/`.
 - Add members
 - Online sale cart and order placement
 - Stock decreases after an order
+=======
+# pharmacy-management-system
+>>>>>>> ee84d93164e7604b2f8edd152e50af87d6b32bee
